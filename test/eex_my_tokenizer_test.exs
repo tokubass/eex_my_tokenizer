@@ -16,5 +16,9 @@ defmodule EEx.MyTokenizerTest do
   end
 
 
+  # 次に:text以外のtokenを処理できるようにする。
+  test 'simple :expr' do
+    assert T.tokenize('<% var %>',1) == {:ok, [{:expr, ' var ' }]}
+  end
 
 end

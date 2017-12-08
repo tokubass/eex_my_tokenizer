@@ -26,11 +26,12 @@ defmodule EEx.MyTokenizer do
     tokenize(chars,buffer, acc)
   end
 
+  # start_expr開始時にはbufferを吐き出して:text tokenを作る必要がある。どう処理をまとめる？マクロ？
   def tokenize('<%#' ++ t, buffer, acc) do
     acc = tokenize_text(buffer,acc)
     buffer = []
     t = case get_expr(t, buffer) do # %>まで進める
-          {:ok, _buffer, rest}
+          {:ok, _expr, rest}
             ->  rest
           _
             -> raise 'not match %>'
@@ -40,7 +41,16 @@ defmodule EEx.MyTokenizer do
   end
 
   def tokenize('<%' ++ t, buffer, acc) do
-    
+    acc = tokenize_text(buffer,acc)
+    buffer = []
+    {expr, t} = case get_expr(t, buffer) do # %>まで進める
+                  {:ok, expr, rest}
+                    -> {expr,rest}
+                  _
+                    -> raise 'not match %>'
+                end
+    acc = tokenize_expr(expr,acc)
+    tokenize(t,buffer,acc)
   end
 
   def tokenize([h|t],buffer,acc) do #　一文字ずつ削るだけの汎用関数
@@ -52,13 +62,17 @@ defmodule EEx.MyTokenizer do
     {:ok, Enum.reverse(acc) }
   end
 
-  def token_name(expr) do
-    
+  def tokenize_expr([],acc) do
+    acc
+  end
+  def tokenize_expr(expr,acc) do
+    [ {:expr, Enum.reverse(expr) } | acc ]
   end
 
   def tokenize_text([],acc) do
     acc
   end
+
   def tokenize_text(buffer,acc) do
     [ {:text, Enum.reverse(buffer) } | acc ]
   end

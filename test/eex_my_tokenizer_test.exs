@@ -6,7 +6,15 @@ defmodule EEx.MyTokenizerTest do
 
   test "simple chars lists" do
     assert T.tokenize('foo', 1) == {:ok, [{:text, 'foo'}]}
-#    assert T.tokenize('foo<%# expr! %>', 1) == {:ok, [{:text, 'foo'}]}
   end
+
+  # commentから実装することで、まずexprを取得するだけのコードがかける(exprを取得しても処理せず捨てるだけ)
+  test 'comment <%#' do
+    assert T.tokenize('<%# expr! %>', 1) == {:ok, []}
+    assert T.tokenize('foo<%# expr! %>', 1) == {:ok, [{:text, 'foo'}]}
+    assert T.tokenize('foo1<%# expr! %>foo2', 1) == {:ok, [{:text, 'foo1'},{:text, 'foo2'}]}
+  end
+
+
 
 end

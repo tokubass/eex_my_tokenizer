@@ -27,5 +27,7 @@ defmodule EEx.MyTokenizerTest do
     assert T.tokenize('foo<% var %>bar',1)  == {:ok, [{:text, 'foo'}, {:expr, '', ' var ' }, {:text, 'bar'}]}
     assert T.tokenize('foo<%= var %>bar',1)  == {:ok, [{:text, 'foo'}, {:expr, '=', ' var ' }, {:text, 'bar'}]}
   end
+
+  ## <%%を作ってもいいが面白くないのでif文にとりかかる
   
 end

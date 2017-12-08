@@ -3,7 +3,7 @@ defmodule EEx.MyTokenizer do
 
 
   @type content :: IO.charlist
-  @type token :: { :text, content }
+  @type token :: { :text, content | :expr, marker, content}
 
   
   @doc """

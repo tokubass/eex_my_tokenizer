@@ -43,13 +43,14 @@ defmodule EEx.MyTokenizer do
   def tokenize('<%' ++ t, buffer, acc) do
     acc = tokenize_text(buffer,acc)
     buffer = []
+    {marker, t} = get_marker(t)
     {expr, t} = case get_expr(t, buffer) do # %>まで進める
                   {:ok, expr, rest}
                     -> {expr,rest}
                   _
                     -> raise 'not match %>'
                 end
-    acc = tokenize_expr(expr,acc)
+    acc = tokenize_expr(expr,marker,acc)
     tokenize(t,buffer,acc)
   end
 
@@ -62,11 +63,11 @@ defmodule EEx.MyTokenizer do
     {:ok, Enum.reverse(acc) }
   end
 
-  def tokenize_expr([],acc) do
+  def tokenize_expr([],_marker,acc) do
     acc
   end
-  def tokenize_expr(expr,acc) do
-    [ {:expr, Enum.reverse(expr) } | acc ]
+  def tokenize_expr(expr,marker,acc) do
+    [ {:expr, marker, Enum.reverse(expr) } | acc ]
   end
 
   def tokenize_text([],acc) do
@@ -83,5 +84,12 @@ defmodule EEx.MyTokenizer do
   def get_expr([h|t], buffer) do
     get_expr(t, [ h | buffer])
   end
-  
+
+
+  def get_marker('=' ++ t) do
+    {'=', t}
+  end
+  def get_marker(t) do
+    {'', t}
+  end
 end
